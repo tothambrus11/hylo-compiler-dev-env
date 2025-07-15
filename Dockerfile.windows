@@ -1,0 +1,1 @@
+FROM swift:6.1.2-windowsservercore-ltsc2022

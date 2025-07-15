@@ -33,7 +33,7 @@ jobs:
             ghcr.io/${{ github.repository }}:latest
 
   build_and_push_windows:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write

@@ -90,7 +90,7 @@ template: |
 
   This release is available as a Docker image:
   ```
-  docker pull ghcr.io/$OWNER/$REPOSITORY:$TAG_NAME
+  docker pull ghcr.io/$OWNER/$REPOSITORY:$RESOLVED_VERSION
   ```
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$TAG_NAME
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG..$RESOLVED_VERSION

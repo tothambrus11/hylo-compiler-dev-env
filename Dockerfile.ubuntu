@@ -10,14 +10,28 @@ ENV HYLO_LLVM_DOWNLOAD_URL="https://github.com/hylo-lang/llvm-build/releases/dow
 # Note that we do cleanup in the same layer to save disk space.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gnupg curl libzstd-dev libzstd1 lsb-release make \
-       ninja-build tar wget zstd software-properties-common python3-full python3-pip && \
+       ninja-build tar wget zstd software-properties-common ca-certificates gpg && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
 
-# Get a recent cmake (https://www.kitware.com/cmake-python-wheels/)
-# RUN if $(/usr/bin/which cmake) ; then apt purge --auto-remove cmake ; fi
-RUN python3 -m venv python-venv
-RUN python-venv/bin/pip install --upgrade cmake
+# Add Kitware APT repository and install recent CMake
+RUN <<EOT bash -ex -o pipefail
+
+    # Download and run the Kitware archive script
+    wget -O - https://apt.kitware.com/kitware-archive.sh | bash
+    
+    # Install CMake from Kitware repository
+    apt-get install -y cmake
+    
+    # Clean up package cache and temporary files to reduce image size
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /tmp/*
+    rm -rf /var/tmp/*
+
+EOT
 
 
 # Get the LLVM builds for the host architecture
@@ -26,6 +40,7 @@ RUN <<EOT bash -ex -o pipefail
     file_prefix="llvm-\${HYLO_LLVM_VERSION}-\$(uname -m)-unknown-linux-gnu"
     url_prefix="\${HYLO_LLVM_DOWNLOAD_URL}/\${HYLO_LLVM_BUILD_RELEASE}/\$file_prefix"
 
+    # Install both Debug and MinSizeRel builds
     for build_type in Debug MinSizeRel; do
         curl --no-progress-meter -L "\${url_prefix}-\${build_type}.tar.zst" | tar -x --zstd -C /opt
         ln -s /opt/\${file_prefix}-\${build_type} /opt/llvm-\${build_type}

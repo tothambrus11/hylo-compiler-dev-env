@@ -1,0 +1,68 @@
+name: Release Docker Image
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_and_push_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push release Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.ubuntu
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+            ghcr.io/${{ github.repository }}:latest
+
+      - name: Clean up draft image
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tagName = '${{ github.event.release.tag_name }}';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            try {
+              // Get all package versions
+              const { data: versions } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+                package_type: 'container',
+                package_name: repo,
+                org: owner,
+                per_page: 100
+              });
+              
+              // Find and delete the draft version if it exists
+              const draftVersion = versions.find(version => 
+                version.metadata.container.tags.includes('latest-draft')
+              );
+              
+              if (draftVersion) {
+                console.log(`Cleaning up draft image version ${draftVersion.id}`);
+                await github.rest.packages.deletePackageVersionForOrg({
+                  package_type: 'container',
+                  package_name: repo,
+                  org: owner,
+                  package_version_id: draftVersion.id
+                });
+              }
+            } catch (error) {
+              console.log('Error cleaning up draft image:', error.message);
+              // Don't fail the workflow if cleanup fails
+            }

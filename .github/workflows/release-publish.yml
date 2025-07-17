@@ -3,7 +3,8 @@ name: Release Docker Image
 on:
   release:
     types: [published]
-
+    paths-ignore:
+      - '*.md'
 jobs:
   build_and_push_release:
     runs-on: ubuntu-latest

@@ -2,12 +2,13 @@ name: PR Docker Build
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, closed]
     branches: [main]
 
 jobs:
   build_pr_image:
     runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
     permissions:
       contents: read
       packages: write

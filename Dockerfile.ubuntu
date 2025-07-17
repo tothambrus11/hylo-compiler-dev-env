@@ -33,7 +33,6 @@ RUN <<EOT bash -ex -o pipefail
 
 EOT
 
-
 # Get the LLVM builds for the host architecture
 RUN <<EOT bash -ex -o pipefail
 

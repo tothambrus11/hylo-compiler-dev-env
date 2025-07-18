@@ -1,4 +1,4 @@
-FROM swiftlang/swift:nightly-6.2-noble
+FROM swift:6.1.2
 
 ARG HYLO_LLVM_BUILD_TYPE=MinSizeRel
 ARG HYLO_LLVM_BUILD_RELEASE=20250617-222524

@@ -55,6 +55,6 @@ RUN <<EOT bash -ex -o pipefail
     mkdir -p /opt/llvm-${HYLO_LLVM_BUILD_TYPE}/pkgconfig
     /tmp/make-pkgconfig.sh /opt/llvm-${HYLO_LLVM_BUILD_TYPE}/pkgconfig/llvm.pc > /dev/null
     rm /tmp/make-pkgconfig.sh
-    export PKG_CONFIG_PATH="/opt/llvm-${HYLO_LLVM_BUILD_TYPE}/lib/pkgconfig:\$PKG_CONFIG_PATH"
+    export PKG_CONFIG_PATH="/opt/llvm-${HYLO_LLVM_BUILD_TYPE}/pkgconfig:\$PKG_CONFIG_PATH"
 
 EOT
